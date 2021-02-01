@@ -206,9 +206,11 @@ module Cequel
       def execute_with_options(statement, options={})
         options[:consistency] ||= default_consistency
 
+
+        # do not prepare statement if there are no bind_vars
         cql, options = *case statement
                         when Statement
-                          [prepare_statement(statement),
+                          [statement.bind_vars.any? ? prepare_statement(statement) : statement.cql,
                            {arguments: statement.bind_vars}.merge(options)]
                         when Cassandra::Statements::Batch
                           [statement, options]
